@@ -1,41 +1,37 @@
-package com.oldschoolminecraft.web
+package dev.shog.osm.web
 
-import com.oldschoolminecraft.web.data.Config
-import com.oldschoolminecraft.web.data.Session
 import dev.shog.lib.cfg.ConfigHandler
 import dev.shog.lib.hook.DiscordWebhook
 import dev.shog.lib.hook.WebhookUser
+import dev.shog.osm.web.api.apiServer
+import dev.shog.osm.web.data.Config
+import dev.shog.osm.web.data.Session
+import dev.shog.osm.web.pages.YmlPageImporter
 import io.ktor.application.Application
-import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.*
-import io.ktor.html.respondHtml
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.content.CachingOptions
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Locations
-import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.sessions.SessionStorageMemory
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
-import kotlinx.html.body
-import kotlinx.html.h1
-import kotlinx.html.head
-import kotlinx.html.title
+import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 import kotlin.system.exitProcess
 
 @KtorExperimentalLocationsAPI
-val mainServer = embeddedServer(Netty, port = 8080, module = Application::mainModule)
+val mainServer = embeddedServer(Netty, port = 8090, module = Application::mainModule)
 
 @KtorExperimentalLocationsAPI
-fun Application.mainModule() {
+private fun Application.mainModule() {
     install(ContentNegotiation)
     install(Locations)
     install(DefaultHeaders) {
@@ -64,19 +60,7 @@ fun Application.mainModule() {
     install(StatusPages)
 
     routing {
-        get("/") {
-            DISCORD.sendMessage("GET /").subscribe()
-
-            call.respondHtml {
-                head {
-                    title("Old School Minecraft")
-                }
-
-                body {
-                    h1 { +"wow" }
-                }
-            }
-        }
+        runBlocking { YmlPageImporter.registerPages(this@routing) }
     }
 }
 
@@ -101,13 +85,24 @@ val DISCORD: DiscordWebhook by lazy {
     } else DiscordWebhook(cfg.webhook, webhookUser)
 }
 
+data class Urls(val cdn: String, val api: String, val main: String)
+
+var URLS = Urls("http://localhost:8010", "http://localhost:8020", "http://localhost:8080")
+
 /**
  * Main
  */
 @KtorExperimentalLocationsAPI
-fun main() {
-    DISCORD.sendMessage("OSMWeb is now online!").subscribe()
+fun main(args: Array<String>) {
 
+    if (args.contains("--prod"))
+        URLS = Urls("https://cdn.oldschoolminecraft.com", "https://api.oldschoolminecraft.com", "https://oldschoolminecraft.com")
+
+    if (!args.contains("--block-init-notif"))
+        DISCORD.sendMessage("OSMWeb is now online!").subscribe()
+
+    cdnServer.start()
+    apiServer.start()
     mainServer.start(true)
 }
 
