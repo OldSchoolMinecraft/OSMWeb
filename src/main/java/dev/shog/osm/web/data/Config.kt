@@ -5,7 +5,14 @@ package dev.shog.osm.web.data
  */
 data class Config(
         val webhook: String? = "",
-        val mysql: MySql? = MySql("", "")
+        val mysql: MySql? = MySql("", "", "")
 )
 
-data class MySql(val username: String? = "", val password: String? = "")
+/**
+ * The MySQL credentials
+ */
+data class MySql(
+        val username: String? = "",
+        val password: String? = "",
+        val url: String? = null
+)

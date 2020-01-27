@@ -14,6 +14,7 @@ import io.ktor.locations.Locations
 import io.ktor.request.receiveParameters
 import io.ktor.response.respond
 import io.ktor.routing.Routing
+import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
@@ -40,4 +41,8 @@ private fun Application.mainModule() {
 }
 
 private fun Routing.root() {
+    verifyPage()
+    registerPage()
+    logoutPage()
+    sessionPage()
 }

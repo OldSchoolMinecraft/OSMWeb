@@ -9,19 +9,19 @@ import java.sql.Connection
 import java.sql.DriverManager
 import kotlin.system.exitProcess
 
+/**
+ * Manage MySQL conecitons
+ */
 object MySql {
     private val creds = CONFIG.asObject<Config>().mysql ?: exitProcess(2)
 
     /**
-     * Create a connection to the AWS.
+     * Create a connection to the MySQL.
      */
-    suspend fun createConnection(): Connection = coroutineScope {
-        Class.forName("com.mysql.jdbc.Driver")
-
+    suspend fun createConnection(db: String): Connection = coroutineScope {
+        Class.forName("com.mysql.cj.jdbc.Driver")
         withContext(Dispatchers.Unconfined) {
-            DriverManager.getConnection(
-                    "jdbc:mysql://144.217.80.107:3306/accounts?user=${creds.username}&password=${creds.password}"
-            )
+            DriverManager.getConnection(creds.url + "/$db", creds.username, creds.password)
         }
     }
 }

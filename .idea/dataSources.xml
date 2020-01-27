@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="MySQL - accounts@144.217.80.107" uuid="b69fe7dd-20c1-423e-9ae7-c61a8b088889">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://vps.oldschoolminecraft.com:3306/accounts</jdbc-url>
+    </data-source>
+  </component>
+</project>
